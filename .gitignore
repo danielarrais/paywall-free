@@ -1,0 +1,41 @@
+# Local Netlify folder
+.netlify
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Netlify local build/preview
+.netlify/
+.netlify-cli/
+
+# Logs
+*.log
+logs
+*.pid
+*.seed
+*.pid.lock
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor configs
+.vscode/
+.idea/
+*.swp
+
+# Build artifacts
+dist/
+build/
+.cache/
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Coverage
+coverage/

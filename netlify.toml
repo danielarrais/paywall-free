@@ -1,0 +1,10 @@
+[build]
+publish = "public"
+functions = "netlify/functions"
+node_version = "18"
+
+# (Opcional) Força pretty URLs/SPA redirecionando 404 para index.html
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200

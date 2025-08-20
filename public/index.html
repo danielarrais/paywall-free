@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Leitor — estilo Modo de Leitura</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,800&family=Merriweather:wght@300;400;700&display=swap"
+          rel="stylesheet">
+    <script src="https://unpkg.com/dompurify@3.1.7/dist/purify.min.js"></script>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --fg: #111827;
+            --muted: #6b7280;
+            --accent: #3b82f6;
+            --surface: #f8fafc;
+            --link: #2563eb;
+            --maxw: 70ch;
+            --lh: 1.7;
+            --fz: 18px;
+            --ff: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        .dark {
+            --bg: #0b1020;
+            --fg: #e5e7eb;
+            --muted: #94a3b8;
+            --surface: #0f172a;
+            --link: #60a5fa;
+        }
+
+        .sepia {
+            --bg: #f6f2e8;
+            --fg: #3f3a34;
+            --muted: #665f58;
+            --surface: #f1eadc;
+            --link: #7c5c2e;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--fg);
+            font-family: var(--ff);
+            line-height: var(--lh)
+        }
+
+        a {
+            color: var(--link)
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            backdrop-filter: saturate(180%) blur(8px);
+            background: color-mix(in oklab, var(--bg) 85%, transparent);
+            border-bottom: 1px solid color-mix(in oklab, var(--fg) 10%, transparent);
+        }
+
+        /* Barra ocupa 100% da largura */
+        .bar {
+            max-width: none;
+            width: 100%;
+            margin: 0;
+            padding: .75rem 1rem;
+            display: grid;
+            gap: .5rem;
+            grid-template-columns:1fr;
+        }
+
+        .controls {
+            display: flex;
+            gap: .5rem;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        input[type="url"] {
+            width: 100%;
+            padding: .8rem 1rem;
+            border-radius: .75rem;
+            border: 1px solid color-mix(in oklab, var(--fg) 15%, transparent);
+            background: var(--surface);
+            color: var(--fg);
+            font-size: 1rem;
+        }
+
+        button, select {
+            padding: .55rem .8rem;
+            border-radius: .75rem;
+            border: 1px solid color-mix(in oklab, var(--fg) 15%, transparent);
+            background: var(--surface);
+            color: var(--fg);
+            cursor: pointer;
+        }
+
+        button.primary {
+            background: var(--accent);
+            color: #fff;
+            border: none
+        }
+
+        button[disabled] {
+            opacity: .6;
+            cursor: progress
+        }
+
+        main {
+            display: grid;
+            justify-content: center
+        }
+
+        article.reader {
+            padding: 2rem 1rem;
+            max-width: var(--maxw);
+            font-size: var(--fz)
+        }
+
+        .title {
+            font-size: clamp(1.6rem, 2.8vw, 2.6rem);
+            font-weight: 800;
+            letter-spacing: -.01em;
+            margin: 1rem 0 .25rem
+        }
+
+        .meta {
+            color: var(--muted);
+            margin-bottom: 1.5rem;
+            font-size: .95em
+        }
+
+        .content img, .content video, .content iframe {
+            max-width: 100%;
+            height: auto
+        }
+
+        .content figure {
+            margin: 1rem 0
+        }
+
+        .content p {
+            text-wrap: pretty
+        }
+
+        .progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--accent);
+            width: 0;
+            z-index: 20
+        }
+
+        .footer {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 1rem 5rem;
+            color: var(--muted);
+            font-size: .9em
+        }
+
+        /* Controles de ZOOM no rodapé fixo */
+        .bottom-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 30;
+            display: flex;
+            gap: .5rem;
+            justify-content: center;
+            align-items: center;
+            padding: .6rem;
+            background: color-mix(in oklab, var(--bg) 92%, transparent);
+            border-top: 1px solid color-mix(in oklab, var(--fg) 10%, transparent);
+            backdrop-filter: saturate(180%) blur(8px);
+        }
+
+        .bottom-controls .btn {
+            padding: .6rem .9rem;
+            border-radius: .75rem;
+            border: 1px solid color-mix(in oklab, var(--fg) 15%, transparent);
+            background: var(--surface);
+            color: var(--fg);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .bottom-controls .btn.primary {
+            background: var(--accent);
+            color: #fff;
+            border: none
+        }
+
+        /* Impressão: mostra apenas o artigo */
+        @media print {
+            header, .footer, .bottom-controls, .progress {
+                display: none !important
+            }
+
+            body {
+                background: #fff !important;
+                color: #000 !important
+            }
+
+            article.reader {
+                max-width: 100% !important;
+                font-size: 12pt !important;
+                line-height: 1.6 !important;
+                padding: 0 !important
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+
+<header>
+    <div class="bar">
+        <input id="urlInput" type="url" placeholder="Cole uma URL de artigo (ex.: https://...)">
+        <div class="controls">
+            <button class="primary" id="loadBtn">Carregar</button>
+            <button id="printBtn" title="Imprimir/Salvar PDF">Imprimir</button>
+            <button id="ttsBtn" title="Leitura em voz alta">▶ Ler</button>
+            <select id="themeSel" title="Tema">
+                <option value="light">Claro</option>
+                <option value="dark">Escuro</option>
+                <option value="sepia">Sépia</option>
+            </select>
+            <select id="fontSel" title="Fonte">
+                <option value="sans">Sem serifa</option>
+                <option value="serif">Serifada</option>
+            </select>
+        </div>
+    </div>
+</header>
+
+<main>
+    <article class="reader">
+        <div class="title" id="title">Cole um link acima e clique em **Carregar**</div>
+        <div class="meta" id="meta"></div>
+        <div id="content" class="content"></div>
+    </article>
+</main>
+
+<div class="footer">
+    Dica: use <kbd>Ctrl/Cmd + P</kbd> para salvar em PDF. Alguns sites podem bloquear robôs; se falhar, tente outro
+    artigo.
+</div>
+
+<!-- Controles de zoom no rodapé -->
+<div class="bottom-controls">
+    <button class="btn" id="zoomOutBtn" title="Diminuir zoom">−</button>
+    <button class="btn primary" id="zoomResetBtn" title="Restaurar">100%</button>
+    <button class="btn" id="zoomInBtn" title="Aumentar zoom">+</button>
+</div>
+
+<script>
+    const urlInput = document.getElementById('urlInput');
+    const loadBtn = document.getElementById('loadBtn');
+    const printBtn = document.getElementById('printBtn');
+    const ttsBtn = document.getElementById('ttsBtn');
+    const themeSel = document.getElementById('themeSel');
+    const fontSel = document.getElementById('fontSel');
+    const titleEl = document.getElementById('title');
+    const metaEl = document.getElementById('meta');
+    const contentEl = document.getElementById('content');
+    const progressEl = document.getElementById('progress');
+
+    const zoomOutBtn = document.getElementById('zoomOutBtn');
+    const zoomInBtn = document.getElementById('zoomInBtn');
+    const zoomResetBtn = document.getElementById('zoomResetBtn');
+
+    // Preferências
+    const prefs = JSON.parse(localStorage.getItem('reader:prefs') || '{}');
+
+    function applyPrefs() {
+        document.body.classList.remove('dark', 'sepia');
+        if (prefs.theme === 'dark') document.body.classList.add('dark');
+        if (prefs.theme === 'sepia') document.body.classList.add('sepia');
+        document.documentElement.style.setProperty('--fz', (prefs.fz || 18) + 'px');
+        document.documentElement.style.setProperty('--maxw', (prefs.maxw || 70) + 'ch');
+        document.documentElement.style.setProperty('--lh', (prefs.lh || 1.7));
+        document.documentElement.style.setProperty('--ff',
+            prefs.font === 'serif'
+                ? "'Merriweather', Georgia, 'Times New Roman', serif"
+                : "'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif"
+        );
+        themeSel.value = prefs.theme || 'light';
+        fontSel.value = prefs.font || 'sans';
+        zoomResetBtn.textContent = Math.round((prefs.fz || 18) / 18 * 100) + '%';
+    }
+
+    function savePrefs() {
+        localStorage.setItem('reader:prefs', JSON.stringify(prefs));
+    }
+
+    // Progresso
+    function onScroll() {
+        const docH = document.body.scrollHeight - window.innerHeight;
+        const sc = Math.max(0, Math.min(1, window.scrollY / docH));
+        progressEl.style.width = (sc * 100) + '%';
+    }
+
+    window.addEventListener('scroll', onScroll);
+
+    // TTS
+    let utter = null;
+
+    function toggleTTS() {
+        if (!('speechSynthesis' in window)) {
+            alert('Leitura em voz alta não suportada.');
+            return;
+        }
+        if (speechSynthesis.speaking) {
+            speechSynthesis.cancel();
+            ttsBtn.textContent = '▶ Ler';
+            return;
+        }
+        const text = contentEl.innerText || '';
+        if (!text.trim()) return;
+        utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'pt-BR';
+        utter.rate = 1.0;
+        utter.onend = () => {
+            ttsBtn.textContent = '▶ Ler';
+        };
+        speechSynthesis.speak(utter);
+        ttsBtn.textContent = '⏸ Parar';
+    }
+
+    async function loadArticle() {
+        const raw = urlInput.value.trim();
+        if (!raw) return;
+        try {
+            loadBtn.disabled = true;
+            loadBtn.textContent = 'Carregando…';
+            const u = new URL(raw);
+            const resp = await fetch(`/.netlify/functions/parse?url=${encodeURIComponent(u.href)}`);
+            if (!resp.ok) throw new Error('Falha ao processar a URL');
+            const data = await resp.json();
+            titleEl.textContent = data.title || '(sem título)';
+
+            const words = (data.excerpt || data.content || '').replace(/<[^>]+>/g, '').trim().split(/\s+/).length;
+            const mins = Math.max(1, Math.round(words / 200));
+            const host = (new URL(data.url)).hostname.replace(/^www\./, '');
+            metaEl.textContent = `${host} · ${words.toLocaleString('pt-BR')} palavras · ${mins} min de leitura`;
+
+            const clean = DOMPurify.sanitize(data.content || '', {USE_PROFILES: {html: true}});
+            contentEl.innerHTML = clean;
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        } catch (e) {
+            alert('Erro: ' + e.message);
+        } finally {
+            loadBtn.disabled = false;
+            loadBtn.textContent = 'Carregar';
+        }
+    }
+
+    // Zoom: fonte (14–26px) e largura (55–90ch) em conjunto
+    function setZoom(delta) {
+        const baseFz = prefs.fz || 18;
+        const baseMaxw = prefs.maxw || 70;
+        const newFz = Math.min(26, Math.max(14, baseFz + delta));
+        const newMaxw = Math.min(90, Math.max(55, baseMaxw + (delta > 0 ? 2 : -2)));
+        prefs.fz = newFz;
+        prefs.maxw = newMaxw;
+        applyPrefs();
+        savePrefs();
+    }
+
+    function resetZoom() {
+        prefs.fz = 18;
+        prefs.maxw = 70;
+        applyPrefs();
+        savePrefs();
+    }
+
+    // Eventos
+    loadBtn.addEventListener('click', loadArticle);
+    urlInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') loadArticle();
+    });
+    printBtn.addEventListener('click', () => window.print());
+    ttsBtn.addEventListener('click', toggleTTS);
+    themeSel.addEventListener('change', () => {
+        prefs.theme = themeSel.value;
+        applyPrefs();
+        savePrefs();
+    });
+    fontSel.addEventListener('change', () => {
+        prefs.font = fontSel.value;
+        applyPrefs();
+        savePrefs();
+    });
+
+    zoomOutBtn.addEventListener('click', () => setZoom(-2));
+    zoomInBtn.addEventListener('click', () => setZoom(+2));
+    zoomResetBtn.addEventListener('click', resetZoom);
+
+    applyPrefs();
+    onScroll();
+
+    // --- Auto-load via ?url= ---
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('url')) {
+        const u = params.get('url');
+        try {
+            new URL(u); // valida
+            urlInput.value = u;
+            loadArticle();
+        } catch (_) {
+            console.warn('URL inválida no parâmetro ?url');
+        }
+    }
+</script>
+</body>
+</html>
